@@ -95,7 +95,7 @@ mrrmaidOut = mrrmaidOut %>%
 
 ###### sensitivity to climate ####
 
-spei = st_read("./data/huc12spei1y.dbf")
+spei = read.csv("./data/huc12spei1y1k.csv")
 ## Pivot wider
 spei.wider = spei %>% pivot_wider(id_cols = c('huc12'), ## 18,861 obs
                                     names_from = 'date', values_from = 'spei1y')
@@ -150,12 +150,12 @@ speiValsEL = speiEL[,2:length(colnames(speiEL))]
 A <- as.matrix(mesicVals)
 B <- as.matrix(speiVals)
 #hucCor = sapply(seq.int(dim(A)[1]), function(i) cor(A[i,], B[i,]))
-hucCor = sapply(seq.int(dim(A)[1]), function(i) cor(A[i,], B[i,], method = "spearman"))
+hucCor = sapply(seq.int(dim(A)[1]), function(i) cor(A[i,], B[i,], method = "spearman", use = "na.or.complete" ))
 
 ## energy limited
 Ael <- as.matrix(mesicValsEL)
 Bel <- as.matrix(speiValsEL)
-hucCorEL = sapply(seq.int(dim(Ael)[1]), function(i) cor(Ael[i,], Bel[i,], method = "spearman"))
+hucCorEL = sapply(seq.int(dim(Ael)[1]), function(i) cor(Ael[i,], Bel[i,], method = "spearman", use = "na.or.complete" ))
 
 ## append corr vals to df with other metrics
 mesicOut = cbind(mesic %>% 
@@ -319,6 +319,6 @@ emptyHUC = data.frame(hucNum, tempHUC$geometry)
 colnames(emptyHUC) = colnames(tempHUC)
 
 hucJoin = left_join(metrics, emptyHUC, by = 'huc12')
-st_write(hucJoin, "./output/huc12metrics.shp")
+st_write(hucJoin, "./output/huc12metricSPEI.shp")
 #st_write(hucJoin, "./output/huc12metricsFill.shp")
 
