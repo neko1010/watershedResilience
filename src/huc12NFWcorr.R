@@ -199,13 +199,39 @@ histogram_data <- layer_data(ecoCount)
 
 ## write table for counts
 write.table(table(metrics$ecoregion), file = "./output/counts.csv")
+
+## Individual boxplots
 ggCorr = ggplot(data = metrics, aes(x=ecoregion, y=hucCor)) +
   geom_boxplot()+
   theme(axis.text.x = element_text(angle = 65, hjust = 1))+
   xlab("Ecoregion")+
-  ylab("Correlation")
+  ylab("Sensitivity")
 #scale_y_continuous(sec.axis = sec_axis(~ . * .10, name = "Trend"))
 ggCorr
+
+ggVar= ggplot(data = metrics, aes(x=ecoregion, y=CV)) +
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle = 65, hjust = 1))+
+  xlab("Ecoregion")+
+  ylab("Variability")+
+  theme(axis.text.x = element_blank(),
+                           axis.title.x = element_blank())
+#scale_y_continuous(sec.axis = sec_axis(~ . * .10, name = "Trend"))
+ggVar
+
+ggIntact = ggplot(data = metrics, aes(x=ecoregion, y=meanTS)) +
+  geom_boxplot()+
+  theme(axis.text.x = element_text(angle = 65, hjust = 1))+
+  xlab("Ecoregion")+
+  ylab("Intactness") +
+  theme(axis.text.x = element_blank(),
+        axis.title.x = element_blank())
+#scale_y_continuous(sec.axis = sec_axis(~ . * .10, name = "Trend"))
+ggIntact
+
+
+threepanel = ggarrange(ggIntact, ggVar, ggCorr, nrow = 3, ncol = 1, heights = c(1,1,1.5), labels = c("A", "B", "C"))
+threepanel
 
 ## Pivot longer for multiple boxes
 
