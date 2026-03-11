@@ -6,6 +6,7 @@ library(lubridate)
 library(ggpubr)
 library(trend)
 
+
 ### Process
 setwd("~/BSU/MRRMAid/watershedResilience")
 ## read data 
@@ -127,6 +128,36 @@ mesicValsEL = mesicEL[3:20]
 ## rm NA
 mesicEL = na.omit(mesicEL)
 
+## Export a .shp for a map of EL HUC12s
+huc12sf = st_read("./data/huc12.shp")
+mesicELcoords = huc12sf %>%
+  filter(huc12 %in% mesicEL$huc12)
+
+mesicELeco = mesicEL %>%
+  select('huc12', 'ecoregion')
+
+mesicELeco$huc12 = as.character(mesicELeco$huc12)
+mesicELcoords = left_join(mesicELcoords, mesicELeco, by = "huc12")
+
+
+states = st_read("../watershedResilience/data/tl_2024_us_state.shp")
+sage = st_read("../watershedResilience/data/sagebrushBiome.shp")
+
+## transform the sage biome to states
+sageNAD83 = st_transform(sage, crs = st_crs(states))
+mesicELNAD83 = st_transform(mesicELcoords, crs = st_crs(states))
+sageStates <- st_filter(states, sageNAD83, .predicate = st_intersects)
+
+
+## map
+ggPoly = ggplot(mesicELNAD83) +
+  geom_sf(aes(fill = ecoregion))+
+  geom_sf(data = sageStates, color = "black", fill = NA, lwd = 1)+
+  labs(x = "Longitude", y = "Latitude")
+ggPoly
+
+
+#st_write(mesicELcoords, "./output/mesicEL.shp")
 ## fill the gaps
 #mesicValsEL = replace_na_with_mean(mesicValsEL)
 ## OR remove NA
